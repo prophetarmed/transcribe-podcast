@@ -20,6 +20,7 @@
       default = pkgs.mkShell {
         packages = with pkgs; [
 	  python312
+	  python312Packages.black
 	  python312Packages.feedparser
 	  python312Packages.openai-whisper
 	];

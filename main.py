@@ -5,28 +5,31 @@ import requests
 import tempfile
 import whisper
 
+
 def get_args() -> tuple[str, str, bool]:
     parser = argparse.ArgumentParser(
-                    prog='transcribe-podcast',
-                    description='Transcribe audio files or podcasts using OpenAI Whisper')
+        prog="transcribe-podcast",
+        description="Transcribe audio files or podcasts using OpenAI Whisper",
+    )
     parser.add_argument("query")
     parser.add_argument("output")
     parser.add_argument("--from-file", action="store_true")
-    
+
     args = parser.parse_args()
     return (args.query, args.output, args.from_file)
+
 
 def get_feed_url(query: str) -> str:
     url = "https://itunes.apple.com/search"
     params = {
-            'term': query,
-            # TODO: don't hardcode this
-            'country': 'gb',
-            'entity': 'podcast'
-            }
-    
+        "term": query,
+        # TODO: don't hardcode this
+        "country": "gb",
+        "entity": "podcast",
+    }
+
     response = requests.get(url, params=params)
-    if (response.ok):
+    if response.ok:
         jsonData = json.loads(response.content)
         results = jsonData["results"]
 
@@ -34,7 +37,9 @@ def get_feed_url(query: str) -> str:
         for i, item in enumerate(results):
             print(f"{i + 1}: {item["collectionName"]} by {item["artistName"]}")
 
-        podcast_index = int(input("Please enter the index of the desired podcast feed: "))
+        podcast_index = int(
+            input("Please enter the index of the desired podcast feed: ")
+        )
         feed_url = results[podcast_index - 1]["feedUrl"]
         return feed_url
     else:
@@ -42,18 +47,21 @@ def get_feed_url(query: str) -> str:
         # TODO: feels improper
         return ""
 
+
 def get_podcast_episode(query: str) -> str:
     feed_url = get_feed_url(query)
     feed = feedparser.parse(feed_url)
     feed_items = list(feed.entries)
-    
+
     items = feed_items
     episode_index = 0
     searching = True
     while searching:
         for i, entry in enumerate(items):
             print(f"{i + 1} - {entry.title}")
-        episode_index_or_search = input("Please enter the index of the desired podcast episode or a keyword to search (type 'all' to view all podcasts from feed): ")
+        episode_index_or_search = input(
+            "Please enter the index of the desired podcast episode or a keyword to search (type 'all' to view all podcasts from feed): "
+        )
         try:
             episode_index = int(episode_index_or_search)
             searching = False
@@ -69,14 +77,18 @@ def get_podcast_episode(query: str) -> str:
             items = filtered_items
 
     feed_links = items[episode_index - 1].links
-    url = next((url.href for url in feed_links if ".mp3" in url.href), feed_links[0].href)
+    url = next(
+        (url.href for url in feed_links if ".mp3" in url.href), feed_links[0].href
+    )
     return url
+
 
 def parse_audio_file(filename: str) -> str:
     print("Transcribing audio content...")
     model = whisper.load_model("base")
     result = model.transcribe(filename)
     return str(result["text"])
+
 
 def main():
     (query, output, from_file) = get_args()
@@ -94,5 +106,6 @@ def main():
 
     with open(output, "w") as f:
         f.write(transcription)
+
 
 main()
