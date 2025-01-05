@@ -46,11 +46,29 @@ def get_podcast_episode(query: str) -> str:
     feed_url = get_feed_url(query)
     feed = feedparser.parse(feed_url)
     feed_items = list(feed.entries)
-    for i, entry in enumerate(feed_items):
-        print(f"{i + 1} - {entry.title}")
+    
+    items = feed_items
+    episode_index = 0
+    searching = True
+    while searching:
+        for i, entry in enumerate(items):
+            print(f"{i + 1} - {entry.title}")
+        episode_index_or_search = input("Please enter the index of the desired podcast episode or a keyword to search (type 'all' to view all podcasts from feed): ")
+        try:
+            episode_index = int(episode_index_or_search)
+            searching = False
+        except ValueError:
+            if episode_index_or_search == "all":
+                items = feed_items
+                break
 
-    episode_index = int(input("Please enter the index of the desired podcast episode: "))
-    feed_links = feed_items[episode_index - 1].links
+            filtered_items = []
+            for entry in feed_items:
+                if episode_index_or_search.lower() in entry.title.lower():
+                    filtered_items.append(entry)
+            items = filtered_items
+
+    feed_links = items[episode_index - 1].links
     url = next((url.href for url in feed_links if ".mp3" in url.href), feed_links[0].href)
     return url
 
