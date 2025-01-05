@@ -15,5 +15,9 @@ python main.py "Cool Podcast" output.txt
 There is also a `--fromfile` flag for if you wish to transcribe a file. Usage for that would be something like
 
 ```sh 
-python main.py "/home/user/podcast.mp3" output.txt --fromfile
+python main.py "/home/user/podcast.mp3" output.txt --from-file
 ```
+
+## Areas off improvement
+
+Currently everything is very hardcoded and probably doesn't handle errors well. There are also a couple of TODOs.

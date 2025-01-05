@@ -11,10 +11,10 @@ def get_args() -> tuple[str, str, bool]:
                     description='Transcribe audio files or podcasts using OpenAI Whisper')
     parser.add_argument("query")
     parser.add_argument("output")
-    parser.add_argument("--fromfile", action="store_true")
+    parser.add_argument("--from-file", action="store_true")
     
     args = parser.parse_args()
-    return (args.query, args.output, args.fromfile)
+    return (args.query, args.output, args.from_file)
 
 def get_feed_url(query: str) -> str:
     url = "https://itunes.apple.com/search"
@@ -55,24 +55,26 @@ def get_podcast_episode(query: str) -> str:
     return url
 
 def parse_audio_file(filename: str) -> str:
+    print("Transcribing audio content...")
     model = whisper.load_model("base")
     result = model.transcribe(filename)
     return str(result["text"])
 
 def main():
-    # TODO: use is_file
-    (query, output, is_file) = get_args()
-    if not is_file:
+    (query, output, from_file) = get_args()
+    transcription = ""
+
+    if from_file:
+        transcription = parse_audio_file(query)
+    else:
         episode_url = get_podcast_episode(query)
         with tempfile.NamedTemporaryFile() as fp:
             print("Downloading file...")
             file_contents = requests.get(episode_url, stream=True).content
-
             fp.write(file_contents)
-
-            print("Transcribing audio content...")
             transcription = parse_audio_file(fp.name)
-            with open(output, "w") as f:
-                f.write(transcription)
+
+    with open(output, "w") as f:
+        f.write(transcription)
 
 main()
