@@ -12,7 +12,7 @@ The main entrypoint of the program is `main.py`. Standard usage would be somethi
 python main.py "Cool Podcast" output.txt
 ```
 
-There is also a `--fromfile` flag for if you wish to transcribe a file. Usage for that would be something like
+There is also a `--from-file` flag for if you wish to transcribe a file. Usage for that would be something like
 
 ```sh 
 python main.py "/home/user/podcast.mp3" output.txt --from-file
